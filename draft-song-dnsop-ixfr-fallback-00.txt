@@ -13,11 +13,11 @@ Expires: October 30, 2016
 
 Abstract
 
-   This memo introduces a IXFR fallback to AXFR observed during a
+   This memo introduces an IXFR fallback to AXFR observed during a
    multiple signer experiment conducted in Yeti project.  In the
    experiment IXFR client is designed to pull the zone from three IXFR
    servers who used their own key to sign the zone and produce different
-   RRSIG records intensionally.  This configuration causes the failure
+   RRSIG records intentionally.  This configuration causes the failure
    of IXFR and fallback to AXFR in client side.
 
 Status of This Memo
@@ -76,16 +76,16 @@ Table of Contents
    transfer (AXFR) [RFC5936], incremental Zone Transfer (IXFR)[RFC1995],
    and NOTIFY [RFC1996] to achieve coherency of the zone contents.  IXFR
    is an optimization for large DNS zone transfer, which allows server
-   only transfer the changed potion(s) to client.
+   only transfer the changed portion(s) to client.
 
    IXFR some times falls back to AXFR in condition that IXFR server
    cannot fulfill the given delta-update request (with multiple upstream
    servers).  It is not a protocol defect but do stimulate people to
-   find optimization avoid full zone transfer [I-D.kerr-ixfr-only] and
-   try to make a new IXFR protocol [I-D.ietf-dnsext-rfc1995bis-ixfr].
+   find optimization avoiding full zone transfer [I-D.kerr-ixfr-only] and
+   trying to make a new IXFR protocol [I-D.ietf-dnsext-rfc1995bis-ixfr].
 
    RFC 5936[RFC5936] defines another AXFR fallback situation where
-   client can stops IXFR if its upstream servers have different ideas of
+   client can stop IXFR if its upstream servers have different ideas of
    the zone contents.  IXFR fails due to the process of adding records
    that already exist or deleting records that do not exist
 
@@ -118,29 +118,29 @@ Internet-Draft        An IXFR Fallback to AXFR Case           April 2016
 
    As a background for this memo, the introduction of Yeti testbed and
    experiments can be found in [I-D.song-yeti-testbed-experience], and
-   section 3.1 and 4.2 are relevant.  Conceptually, Yeti DNS intend to
+   section 3.1 and 4.2 are relevant.  Conceptually, Yeti DNS intends to
    break one Signer/DM role into three which buys some properties in
-   loosely cooperative environment , such as resilience to single point
+   loosely cooperative environment, such as resilience to single point
    of failure, more independent choice for slave server, certain degree
    of transparency and management coordination for important zone (root
    zone in Yeti's case).
 
    Basically, in Yeti there are three distribution masters (DM) as IXFR
-   server and a number of secondary servers as IXFR Client.  One
-   experiment is design to test multiple signer with Multiple ZSK
+   server and a number of secondary servers as IXFR Client. One
+   experiment is designed to test multiple signers with Multiple ZSK
    (MZSK).  It is required that all public ZSK used by DMs are included
-   in the zone as a key set; And resolver can validate the message by
-   picking one key from the key set.  From DNSSEC point of view, it is
-   OK.  However, different signer do produce different RRSIG RR which
+   in the zone as a key set; and resolver can validate the message by
+   picking one key from the key set. From DNSSEC point of view, it is
+   OK.  However, different signers do produce different RRSIG RR which
    introduces zone inconsistency from beginning.
 
    It is observed that one IXFR client switched from one IXFR server to
-   another, it received a zone update deleting RRSIG record that do not
-   exist.  Consequently the IXFR client rejected IXFR response and made
-   a log indicating a bad data; and then ask for full zone transfer.
+   another, it received a zone update deleting RRSIG record that does not
+   exist. Consequently the IXFR client rejected IXFR response and made
+   a log indicating a bad data; and then asked for full zone transfer.
    Luckily, Yeti root zone is relatively small (691K), so the fallback
-   to AXFR does not cause significant performance degeneration.  But if
-   operator do host big zone with MZSK model, it will cause problem base
+   to AXFR does not cause significant performance degeneration. But if
+   operator does host big zone with MZSK model, it will cause problem based
    on current IXFR.
 
 3.  Possible solution
@@ -149,14 +149,14 @@ Internet-Draft        An IXFR Fallback to AXFR Case           April 2016
    is not a problem indeed).
 
    o  To ask for development of new IXFR protocol to exclude the RRSIG
-      as a specially zone content when it compute the diff sequences in
+      as a specially zone content when it computes the diff sequences in
       MZSK model.
 
-   o  To ask for adopt of IXFR-only draft and recommend it as default
-      IXFR protocol for MZSK situation
+   o  To ask for adoption of IXFR-only draft and recommend it as default
+      IXFR protocol for MZSK situation.
 
    o  To spot the AXFR fallback in MZSK as an operation concern.  And
-      suggest small zone operator configure AXFR as a default for zone
+      suggest small zone operator to configure AXFR as a default for zone
       transfer in order to reduce the latency caused by the fallback.
 
 
