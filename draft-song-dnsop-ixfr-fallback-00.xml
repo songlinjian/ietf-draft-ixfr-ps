@@ -1,0 +1,209 @@
+<?xml version="1.0"?>
+<!-- This template is for creating an Internet Draft using xml2rfc,
+     which is available here: http://xml.resource.org. -->
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!-- One method to get references from the online citation libraries.
+     There has to be one entity for each item to be referenced.
+     An alternate method (rfc include) is described in the references. -->
+
+<!ENTITY RFC1996 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.1996.xml">
+<!ENTITY RFC1995 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.1995.xml">
+<!ENTITY RFC5936 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5936.xml">
+
+<!ENTITY I-D.kerr-ixfr-only SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-kerr-ixfr-only-01.xml">
+<!ENTITY I-D.ietf-dnsext-rfc1995bis-ixfr SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dnsext-rfc1995bis-ixfr.xml">
+<!ENTITY I-D.song-yeti-testbed-experience SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-song-yeti-testbed-experience-01.xml">
+
+]>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<!-- used by XSLT processors -->
+<!-- For a complete list and description of processing instructions (PIs),
+     please see http://xml.resource.org/authoring/README.html. -->
+<!-- Below are generally applicable Processing Instructions (PIs) that most I-Ds might want to use.
+     (Here they are set differently than their defaults in xml2rfc v1.32) -->
+<?rfc strict="yes" ?>
+<!-- give errors regarding ID-nits and DTD validation -->
+<!-- control the table of contents (ToC) -->
+<?rfc toc="yes"?>
+<?rfc tocappendix="yes"?>
+<!-- generate a ToC -->
+<?rfc tocdepth="3"?>
+<!-- the number of levels of subsections in ToC. default: 3 -->
+<!-- control references -->
+<?rfc symrefs="yes"?>
+<!-- use symbolic references tags, i.e, [RFC2119] instead of [1] -->
+<?rfc sortrefs="yes" ?>
+<!-- sort the reference entries alphabetically -->
+<!-- control vertical white space
+     (using these PIs as follows is recommended by the RFC Editor) -->
+<?rfc compact="yes" ?>
+<!-- do not start each main section on a new page -->
+<?rfc subcompact="no" ?>
+<!-- keep one blank line between list items -->
+<!-- end of list of popular I-D processing instructions -->
+<?rfc comments="no" ?>
+<?rfc inline="yes" ?>
+<rfc category="info" docName="draft-song-dnsop-ixfr-fallback-00" ipr="trust200902">
+
+  <front>
+
+    <title>An IXFR Fallback to AXFR Case</title>
+
+    <author fullname="Linjian Song" initials="L." surname="Song">
+      <organization>Beijing Internet Institute</organization>
+      <address>
+        <postal>
+          <street>2508 Room, 25th Floor, Tower A, Time Fortune</street>
+          <city>Beijing</city>
+          <region></region>
+          <code>100028</code>
+          <country>P. R. China</country>
+        </postal>
+        <email>songlinjian@gmail.com</email>
+        <uri>http://www.biigroup.com/</uri>
+      </address>
+    </author>
+    <date/>
+    <!-- Meta-data Declarations -->
+
+    <area>Internet Area</area>
+    <workgroup>Internet Engineering Task Force</workgroup>
+
+    <!-- <keyword>dns</keyword> -->
+
+    <abstract>
+      <t>
+        This memo introduces a IXFR fallback to AXFR observed during 
+        a multiple signer experiment conducted in Yeti project. In the 
+        experiment IXFR client is designed to pull the zone from three 
+        IXFR servers who used their own key to sign the zone and produce 
+        different RRSIG records intensionally. This configuration causes the 
+        failure of IXFR and fallback to AXFR in client side.
+      </t>
+
+    </abstract>
+
+  </front>
+
+  <middle>
+
+    <section title="Introduction">
+    
+    <t>In DNS specifications authoritative name server uses full zone 
+      transfer (AXFR) <xref target="RFC5936"/>, incremental Zone Transfer 
+      (IXFR)<xref target="RFC1995"/>, and NOTIFY <xref target="RFC1996"/> 
+      to achieve coherency of the zone contents.  IXFR is an optimization 
+      for large DNS zone transfer, which allows server only transfer the 
+      changed potion(s) to client.</t>
+
+    <t>IXFR some times falls back to AXFR in condition that IXFR server 
+      cannot fulfill the given delta-update request (with multiple upstream 
+      servers). It is not a protocol defect but do stimulate people to find 
+      optimization avoid full zone transfer <xref target="I-D.kerr-ixfr-only"/> 
+      and try to make a new IXFR protocol 
+      <xref target="I-D.ietf-dnsext-rfc1995bis-ixfr"/>. 
+    </t>
+
+    <t>RFC 5936<xref target="RFC5936"/> defines another AXFR fallback 
+    situation where client can stops IXFR if its upstream servers have 
+    different ideas of the zone contents. IXFR fails due to the process 
+    of adding records that already exist or deleting records that do not 
+    exist</t>
+
+    <t>This memo introduces an AXFR fallback case we observed during a DNS 
+      root experiment in Yeti project<xref target="Yeti-DNS-Project"/> which 
+      involves multiple root zone distribution master (DM). It is designed that 
+      three DMs do have different "ideas" on how their keys are managed and 
+      produce different RRSIG records. </t>
+
+    <t>
+     REMOVE BEFORE Publication: The motivation of this memo is to ask for 
+     discussion in the community, about whether this specific fallback is 
+     viewed as a problem and is it worthwhile to develop IXFR further. If not, 
+     this memo may provide some information and guidance to operators who do 
+     run authoritative servers in similar situation as it is done in Yeti 
+     experiment.  
+    </t>
+
+    </section>
+    <section title="The AFXR fallback observed in MZSK experiment">
+    <t>
+     As a background for this memo, the introduction of Yeti testbed and 
+     experiments can be found in <xref target="I-D.song-yeti-testbed-experience"/>, 
+     and section 3.1 and 4.2 are relevant. Conceptually, Yeti DNS intend to break one 
+     Signer/DM role into three which buys some properties in loosely cooperative environment , such as resilience to single point of failure, more independent 
+     choice for slave server, certain degree of transparency and management coordination for important zone (root zone in Yeti's case).
+   </t>
+
+    <t>
+     Basically, in Yeti there are three distribution masters (DM) as IXFR server 
+     and a number of secondary servers as IXFR Client. One experiment is design 
+     to test multiple signer with Multiple ZSK (MZSK). It is required that all 
+     public ZSK used by DMs are included in the zone as a key set; And resolver 
+     can validate the message by picking one key from the key set. From DNSSEC 
+     point of view, it is OK. However, different signer do produce different RRSIG 
+     RR which introduces zone inconsistency from beginning. 
+    </t>
+
+     <t>
+     It is observed that one IXFR client switched from one IXFR server to another, 
+     it received a zone update deleting RRSIG record that do not exist. Consequently 
+     the IXFR client rejected IXFR response and made a log indicating a bad data; 
+     and then ask for full zone transfer. Luckily, Yeti root zone is relatively 
+     small (691K), so the fallback to AXFR does not cause significant performance 
+     degeneration. But if operator do host big zone with MZSK model, it will cause problem base on current IXFR.
+     </t>
+
+    </section>
+
+    <section title="Possible solution">
+
+
+      <t>
+         Generally, there are three considerations to this issue. 
+         (Maybe it is not a problem indeed).
+      </t>
+    <t><list style="symbols">
+    <t>To ask for development of new IXFR protocol to exclude the RRSIG 
+      as a specially zone content when it compute the diff sequences in MZSK 
+      model.</t>
+
+    <t>To ask for adopt of IXFR-only draft and recommend it as default 
+      IXFR protocol for MZSK situation</t>
+
+    <t>To spot the AXFR fallback in MZSK as an operation concern. And suggest 
+      small zone operator configure AXFR as a default for zone transfer in 
+      order to reduce the latency caused by the fallback.</t>
+    </list></t>
+
+
+    </section>
+
+  <section title="Acknowledgments">
+    <t>
+    Specially thanks to Stephane Bortzmeyer who first spotted the IXFR bug from his resolver log. Acknowledgment to Paul Vixie and Shane Kerr who contribute a lot to this technical finding in this memo.
+    </t>
+  </section> <!-- Acknowledgments -->
+  
+  </middle>
+
+  <back>
+
+    <references title="References">
+      &RFC1996; &RFC1995; &RFC5936;
+      &I-D.kerr-ixfr-only;&I-D.ietf-dnsext-rfc1995bis-ixfr;
+      &I-D.song-yeti-testbed-experience;
+
+     <reference anchor="Yeti-DNS-Project" target="http://www.yeti-dns.org">
+            <front>
+                <title>Website of Yeti DNS Project</title>
+                <author ></author>
+                <date />
+            </front>
+     </reference>     
+
+     </references>
+
+  </back>
+</rfc>
+
