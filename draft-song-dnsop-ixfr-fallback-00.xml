@@ -73,13 +73,17 @@
 
     <abstract>
       <t>
-        This memo introduces a IXFR fallback to AXFR observed during 
-        a multiple signer experiment conducted in Yeti project. In the 
+        This memo introduces an IXFR issue observed during a multiple 
+        signers experiment conducted in Yeti DNS project. In the 
         experiment IXFR client is designed to pull the zone from three 
         IXFR servers who used their own key to sign the zone and produce 
-        different RRSIG records intensionally. This configuration causes the 
-        failure of IXFR and fallback to AXFR in client side.
+        different RRSIG records intentionally. The configuration of 
+        multiple signers cause the failure of IXFR in client side.
       </t>
+
+      <t>REMOVE BEFORE PUBLICATION: The source of the document is currently 
+        placed at GitHub <xref target="xml-file"/>. Comments and pull request 
+        are welcome. </t>
 
     </abstract>
 
@@ -94,64 +98,80 @@
       (IXFR)<xref target="RFC1995"/>, and NOTIFY <xref target="RFC1996"/> 
       to achieve coherency of the zone contents.  IXFR is an optimization 
       for large DNS zone transfer, which allows server only transfer the 
-      changed potion(s) to client.</t>
+      changed portion(s) to client.</t>
 
-    <t>IXFR some times falls back to AXFR in condition that IXFR server 
-      cannot fulfill the given delta-update request (with multiple upstream 
-      servers). It is not a protocol defect but do stimulate people to find 
-      optimization avoid full zone transfer <xref target="I-D.kerr-ixfr-only"/> 
-      and try to make a new IXFR protocol 
+    <t>AXFR fallback usually happens at server side by simply returning IXFR 
+      client the entire new zone in condition that IXFR server cannot fulfill 
+      the given delta-update request. It is because an IXFR client may has 
+      multiple IXFR servers for a single zone. It is not a protocol defect 
+      but do stimulate people to find optimization avoiding full zone transfer 
+      <xref target="I-D.kerr-ixfr-only"/> and trying to make a new IXFR protocol 
       <xref target="I-D.ietf-dnsext-rfc1995bis-ixfr"/>. 
     </t>
 
-    <t>RFC 5936<xref target="RFC5936"/> defines another AXFR fallback 
-    situation where client can stops IXFR if its upstream servers have 
-    different ideas of the zone contents. IXFR fails due to the process 
-    of adding records that already exist or deleting records that do not 
-    exist</t>
+    <t><xref target="RFC5936"/> suggests that if its upstream servers have different 
+      ideas of the zone contents with the same (zone, serial) pair, the client can 
+      stop adding records that already exist or deleting records that do not exist.
+      However, if an IXFR incoherence error is spotted by that client, it is not clear 
+      whether the client should stop IXFR process and ask for AXFR as a fallback. To the 
+      author's knowledge, there is such recommendation so far for AXFR fallback 
+      initiated by client in formal document. </t>
 
-    <t>This memo introduces an AXFR fallback case we observed during a DNS 
+    <t>This memo introduces an IXFR problem observed during a DNS 
       root experiment in Yeti project<xref target="Yeti-DNS-Project"/> which 
       involves multiple root zone distribution master (DM). It is designed that 
       three DMs do have different "ideas" on how their keys are managed and 
-      produce different RRSIG records. </t>
+      produce different RRSIG records. In this scenario, it is observed that 
+      different DNS implementations have different behaviors due to the ambiguity 
+      in understanding of IXFR and fallback to AXFR. </t>
 
     <t>
      REMOVE BEFORE Publication: The motivation of this memo is to ask for 
-     discussion in the community, about whether this specific fallback is 
-     viewed as a problem and is it worthwhile to develop IXFR further. If not, 
-     this memo may provide some information and guidance to operators who do 
-     run authoritative servers in similar situation as it is done in Yeti 
-     experiment.  
+     discussion in the community  whether this specific fallback or 
+     non-fallback is viewed as a problem. Is it worthwhile developing 
+     IXFR protocol further towards rfc1996bis. Or this memo can serve providing some 
+     information and guidance to operators who do run authoritative servers 
+     in similar situation as it is done in Yeti experiment.  
     </t>
 
     </section>
-    <section title="The AFXR fallback observed in MZSK experiment">
+    <section title="The IXFR issues observed in MZSK experiment">
     <t>
      As a background for this memo, the introduction of Yeti testbed and 
      experiments can be found in <xref target="I-D.song-yeti-testbed-experience"/>, 
-     and section 3.1 and 4.2 are relevant. Conceptually, Yeti DNS intend to break one 
-     Signer/DM role into three which buys some properties in loosely cooperative environment , such as resilience to single point of failure, more independent 
-     choice for slave server, certain degree of transparency and management coordination for important zone (root zone in Yeti's case).
+     and section 3.1 and 4.2 are relevant. Conceptually, Yeti DNS intends 
+     to break one signer/DM role into three which buys some properties 
+     in loosely cooperative environment , such as resilience to single 
+     point of failure, more independent choice for slave server, and certain 
+     degree of transparency and management coordination for important 
+     zone (root zone in Yeti's case).
    </t>
-
-    <t>
-     Basically, in Yeti there are three distribution masters (DM) as IXFR server 
-     and a number of secondary servers as IXFR Client. One experiment is design 
-     to test multiple signer with Multiple ZSK (MZSK). It is required that all 
-     public ZSK used by DMs are included in the zone as a key set; And resolver 
-     can validate the message by picking one key from the key set. From DNSSEC 
-     point of view, it is OK. However, different signer do produce different RRSIG 
-     RR which introduces zone inconsistency from beginning. 
+   <t>
+     One experiment in Yeti is designed to test multiple signers with Multiple ZSKs (MZSK). 
+     It is required that all public ZSKs used by DMs are included in the zone as a 
+     key set; and resolver can validate the message by picking one key from the key 
+     set. From DNSSEC point of view, it is technically workable. However, different 
+     signers do produce different RRSIG RR which introduces zone inconsistency 
+     from beginning in this case. In current setting of Yeti experiment, it is 
+     possible that one client does AXFR/IXFR from one server and later asks for 
+     IXFR from another server. 
     </t>
 
      <t>
-     It is observed that one IXFR client switched from one IXFR server to another, 
-     it received a zone update deleting RRSIG record that do not exist. Consequently 
-     the IXFR client rejected IXFR response and made a log indicating a bad data; 
-     and then ask for full zone transfer. Luckily, Yeti root zone is relatively 
-     small (691K), so the fallback to AXFR does not cause significant performance 
-     degeneration. But if operator do host big zone with MZSK model, it will cause problem base on current IXFR.
+     It is observed that when the IXFR client switched from one IXFR server to another, 
+     it received a IXFR response deleting RRSIG record that does not exist. One IXFR client 
+     running NSD 4.1.7 rejected IXFR response, made a log indicating a bad data and 
+     then asked for full zone transfer. Luckily, Yeti root zone is relatively small (691K), 
+     so the fallback to AXFR does not cause significant performance degeneration. But if
+     operator does host big zone with MZSK model, it will cause problem based on current 
+     IXFR.
+     </t>
+     <t>
+     Another observation is that another IXFR client running Knot 2.1.0 in similar 
+     situation just accepts the IXFR response, ignores the differences and generates a 
+     merged zone with two RRSIG RRs. It not only produces larger response, but 
+     also causes DNSSEC failure when a new zone is generated given that old RRSIG 
+     is the signature of old zone RRs.   
      </t>
 
     </section>
@@ -161,19 +181,29 @@
 
       <t>
          Generally, there are three considerations to this issue. 
-         (Maybe it is not a problem indeed).
       </t>
+
     <t><list style="symbols">
-    <t>To ask for development of new IXFR protocol to exclude the RRSIG 
-      as a specially zone content when it compute the diff sequences in MZSK 
-      model.</t>
+    <t>Asking for development of RRSIG-aware IXFR format in which the RRSIG is 
+      treated as a special and RRSIG RR should always be transfered in full (like 
+      it does in AXFR). In the case of MZSK experiment, the old RRSIG record(s) 
+      is replaced by the new RRSIG record(s) and no specific deleted RRSIG is 
+      sent. Compared to the first case in NSD 4.1.7, it is helpful to reduce 
+      the cost for full zone transfer if the zone is fairly large.</t>
 
-    <t>To ask for adopt of IXFR-only draft and recommend it as default 
-      IXFR protocol for MZSK situation</t>
+    <t>
+     Adopting the behavior of NSD 4.1.7 as a improvement for IXFR protocol in which
+     an IXFR client should fall back to AXFR automatically in the event of an IXFR 
+     incoherence error. To avoid unnecessary full zone transfer, it is desirable that 
+     the IXFR client is more "sticky" to the server who transfers the zone to the 
+     client last time. 
 
-    <t>To spot the AXFR fallback in MZSK as an operation concern. And suggest 
-      small zone operator configure AXFR as a default for zone transfer in 
-      order to reduce the latency caused by the fallback.</t>
+    </t>
+    <t>Without modification of IXFR protocol, asking each IXFR client (root slave 
+      in Yeti case) to be tied to a specific IXFR server(Yeti DM). This would 
+      decrease redundancy and resiliency but would allow normal IXFR, and may 
+      make debugging easier. But the MZSK operation introduce regional DM which 
+      is not desirable for Yeti case.</t>
     </list></t>
 
 
@@ -181,7 +211,7 @@
 
   <section title="Acknowledgments">
     <t>
-    Specially thanks to Stephane Bortzmeyer who first spotted the IXFR bug from his resolver log. Acknowledgment to Paul Vixie and Shane Kerr who contribute a lot to this technical finding in this memo.
+    Specially thanks to Stephane Bortzmeyer who first spotted the IXFR issues from his NSD and Knot resolvers. Acknowledgment to Paul Vixie and Shane Kerr who contributed a lot to this technical finding and possible solutions in this memo. Thanks to Antonio Prado who helped to make the language more readable.
     </t>
   </section> <!-- Acknowledgments -->
   
@@ -201,6 +231,15 @@
                 <date />
             </front>
      </reference>     
+      <reference anchor="xml-file" target="https://github.com/songlinjian/ietf-draft-ixfr-ps">
+       <front>
+        <title>XML source file of IXFR Case draft</title>
+       <author>
+       <organization></organization>
+        </author>
+        <date year="2016"></date>
+      </front>
+    </reference>
 
      </references>
 
