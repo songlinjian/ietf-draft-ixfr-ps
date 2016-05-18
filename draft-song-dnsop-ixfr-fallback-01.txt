@@ -17,7 +17,7 @@ Abstract
    experiment conducted in Yeti DNS project.  In the experiment IXFR
    client is designed to pull the zone from three IXFR servers who used
    their own key to sign the zone and produce different RRSIG records
-   intentionally.  The configuration of multiple signers cause the
+   intentionally.  The configuration of multiple signers causes the
    failure of IXFR in client side.
 
    REMOVE BEFORE PUBLICATION: The source of the document is currently
@@ -83,8 +83,8 @@ Table of Contents
    AXFR fallback usually happens at server side by simply returning IXFR
    client the entire new zone in condition that IXFR server cannot
    fulfill the given delta-update request.  It is because an IXFR client
-   may has multiple IXFR servers for a single zone.  It is not a
-   protocol defect but do stimulate people to find optimization avoiding
+   may have multiple IXFR servers for a single zone.  It is not a
+   protocol defect but does stimulate people to find optimization avoiding
    full zone transfer [I-D.kerr-ixfr-only] and trying to make a new IXFR
    protocol [I-D.ietf-dnsext-rfc1995bis-ixfr].
 
@@ -99,7 +99,7 @@ Table of Contents
 
    This memo introduces an IXFR problem observed during a DNS root
    experiment in Yeti project[Yeti-DNS-Project] which involves multiple
-   root zone distribution master (DM).  It is designed that three DMs do
+   root zone distribution masters (DM).  It is designed that three DMs do
    have different "ideas" on how their keys are managed and produce
    different RRSIG records.  In this scenario, it is observed that
    different DNS implementations have different behaviors due to the
@@ -117,7 +117,7 @@ Internet-Draft        An IXFR Fallback to AXFR Case             May 2016
    REMOVE BEFORE Publication: The motivation of this memo is to ask for
    discussion in the community whether this specific fallback or non-
    fallback is viewed as a problem.  Is it worthwhile developing IXFR
-   protocol further towards rfc1996bis.  Or this memo can serve
+   protocol further towards rfc1996bis?  Or this memo can serve
    providing some information and guidance to operators who do run
    authoritative servers in similar situation as it is done in Yeti
    experiment.
@@ -127,8 +127,8 @@ Internet-Draft        An IXFR Fallback to AXFR Case             May 2016
    As a background for this memo, the introduction of Yeti testbed and
    experiments can be found in [I-D.song-yeti-testbed-experience], and
    section 3.1 and 4.2 are relevant.  Conceptually, Yeti DNS intends to
-   break one signer/DM role into three which buys some properties in
-   loosely cooperative environment , such as resilience to single point
+   break one signer/DM role into three which buy some properties in
+   loosely cooperative environment, such as resilience to single point
    of failure, more independent choice for slave server, and certain
    degree of transparency and management coordination for important zone
    (root zone in Yeti's case).
@@ -144,7 +144,7 @@ Internet-Draft        An IXFR Fallback to AXFR Case             May 2016
    asks for IXFR from another server.
 
    It is observed that when the IXFR client switched from one IXFR
-   server to another, it received a IXFR response deleting RRSIG record
+   server to another, it received an IXFR response deleting RRSIG record
    that does not exist.  One IXFR client running NSD 4.1.7 rejected IXFR
    response, made a log indicating a bad data and then asked for full
    zone transfer.  Luckily, Yeti root zone is relatively small (691K),
@@ -176,13 +176,13 @@ Internet-Draft        An IXFR Fallback to AXFR Case             May 2016
 
    o  Asking for development of RRSIG-aware IXFR format in which the
       RRSIG is treated as a special and RRSIG RR should always be
-      transfered in full (like it does in AXFR).  In the case of MZSK
+      transferred in full (like it does in AXFR).  In the case of MZSK
       experiment, the old RRSIG record(s) is replaced by the new RRSIG
       record(s) and no specific deleted RRSIG is sent.  Compared to the
       first case in NSD 4.1.7, it is helpful to reduce the cost for full
       zone transfer if the zone is fairly large.
 
-   o  Adopting the behavior of NSD 4.1.7 as a improvement for IXFR
+   o  Adopting the behavior of NSD 4.1.7 as an improvement for IXFR
       protocol in which an IXFR client should fall back to AXFR
       automatically in the event of an IXFR incoherence error.  To avoid
       unnecessary full zone transfer, it is desirable that the IXFR
@@ -191,9 +191,9 @@ Internet-Draft        An IXFR Fallback to AXFR Case             May 2016
 
    o  Without modification of IXFR protocol, asking each IXFR client
       (root slave in Yeti case) to be tied to a specific IXFR
-      server(Yeti DM).  This would decrease redundancy and resiliency
+      server (Yeti DM).  This would decrease redundancy and resiliency
       but would allow normal IXFR, and may make debugging easier.  But
-      the MZSK operation introduce regional DM which is not desirable
+      the MZSK operation introduces regional DM which is not desirable
       for Yeti case.
 
 4.  Acknowledgments
