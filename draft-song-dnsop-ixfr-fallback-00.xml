@@ -211,7 +211,7 @@
 
   <section title="Acknowledgments">
     <t>
-    Specially thanks to Stephane Bortzmeyer who first spotted the IXFR issues from his NSD and Knot resolvers. Acknowledgment to Paul Vixie and Shane Kerr who contributed a lot to this technical finding and possible solutions in this memo. Thanks to Antonio Prado who helped to make the language more readable.
+    Specially thanks to Stephane Bortzmeyer who first spotted the IXFR issues from his NSD and Knot authoritative servers. Acknowledgment to Paul Vixie and Shane Kerr who contributed a lot to this technical finding and possible solutions in this memo. Thanks to Antonio Prado who helped to make the language more readable.
     </t>
   </section> <!-- Acknowledgments -->
   
